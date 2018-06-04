@@ -5,6 +5,9 @@ import whois
 import requests
 
 
+PAID_DAYS = 30
+
+
 def load_urls4check(path):
     with open(path, "r", encoding="utf-8") as file_with_urls:
         url_list = file_with_urls.read().split()
@@ -14,7 +17,7 @@ def load_urls4check(path):
 def is_server_respond_with_200(url):
     try:
         response_from_url = requests.get(url)
-        return response_from_url.status_code == 200
+        return response_from_url.ok
     except requests.ConnectionError:
         return None
 
@@ -22,7 +25,7 @@ def is_server_respond_with_200(url):
 def is_site_paid(url_list):
     today = datetime.datetime.today()
     for url in url_list:
-        if get_domain_expiration_date(url) - today >= datetime.timedelta(30):
+        if get_domain_expiration_date(url) - today >= datetime.timedelta(PAID_DAYS):
             yield url, True
         else:
             return None
