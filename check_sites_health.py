@@ -25,7 +25,7 @@ def is_domains_paid(url, paid_days):
     if expiration_date is None:
         return None
     if expiration_date - today >= datetime.timedelta(paid_days):
-        return True
+        return bool(expiration_date - today >= datetime.timedelta(paid_days))
 
 
 def create_output_generator(url_list):
