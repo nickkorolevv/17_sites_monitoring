@@ -1,2 +1,2 @@
-pywhois==0.1
+python-whois==0.1
 requests==2.18.4
