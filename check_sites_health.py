@@ -11,25 +11,28 @@ def load_urls4check(path):
         return url_list
 
 
-def is_server_respond_ok(url_list):
-    for url in url_list:
-        try:
-            response_from_url = requests.get(url)
-            yield response_from_url.ok
-        except requests.ConnectionError:
-            return None
+def is_server_respond_ok(url):
+    try:
+        response_from_url = requests.get(url)
+        return response_from_url.ok
+    except requests.ConnectionError:
+        return None
 
 
-def is_domains_paid(url_list, paid_days, server_respond_ok):
+def is_domains_paid(url, paid_days):
     today = datetime.datetime.today()
+    expiration_date = get_domain_expiration_date(url)
+    if expiration_date is None:
+        return None
+    if expiration_date - today >= datetime.timedelta(paid_days):
+        return True
+
+
+def create_output_generator(url_list):
     for url in url_list:
-        expiration_date = get_domain_expiration_date(url)
-        if expiration_date is None:
-            return None
-        if expiration_date - today >= datetime.timedelta(paid_days):
-            yield url, True, server_respond_ok
-        else:
-            return None, None, None
+        domains_paid = is_domains_paid(url, paid_days)
+        response_ok = is_server_respond_ok(url)
+        yield url, response_ok, domains_paid
 
 
 def get_domain_expiration_date(url):
@@ -41,8 +44,8 @@ def get_domain_expiration_date(url):
         return expiration_date
 
 
-def print_site_health(url_and_site_paid):
-    for url, site_paid, server_respond in url_and_site_paid:
+def print_site_health(url_response_ok_and_domains_paid):
+    for url, site_paid, server_respond in url_response_ok_and_domains_paid:
         is_paid = "Да" if site_paid else "Нет"
         is_respond_ok = "Да" if server_respond else "Нет"
         print("Сайт: ", url)
@@ -59,6 +62,5 @@ if __name__ == "__main__":
         exit("Файла нет в директории")
     paid_days = 30
     url_list = load_urls4check(filepath)
-    server_respond_ok = is_server_respond_ok(url_list)
-    url_and_site_paid = is_domains_paid(url_list, paid_days, server_respond_ok)
-    print_site_health(url_and_site_paid)
+    url_response_ok_and_domains_paid = create_output_generator(url_list)
+    print_site_health(url_response_ok_and_domains_paid)
