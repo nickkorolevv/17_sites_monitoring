@@ -24,7 +24,7 @@ def is_domains_paid(url, paid_days):
     expiration_date = get_domain_expiration_date(url)
     if expiration_date is None:
         return None
-    return bool(expiration_date - today >= datetime.timedelta(paid_days))
+    return expiration_date - today >= datetime.timedelta(paid_days)
 
 
 def create_output_generator(url_list):
@@ -53,7 +53,7 @@ def print_site_health(url_response_ok_and_domains_paid):
 
 
 if __name__ == "__main__":
-    if len(sys.argv[1]) > 1:
+    if len(sys.argv) > 1:
         filepath = sys.argv[1]
     else:
         exit("Путь не введен")
