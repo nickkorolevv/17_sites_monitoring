@@ -27,7 +27,7 @@ def is_domains_paid(url, paid_days):
     return expiration_date - today >= datetime.timedelta(paid_days)
 
 
-def create_output_generator(url_list):
+def create_output_generator(url_list, paid_days):
     for url in url_list:
         domains_paid = is_domains_paid(url, paid_days)
         response_ok = is_server_respond_ok(url)
@@ -61,5 +61,5 @@ if __name__ == "__main__":
         exit("Файла нет в директории")
     paid_days = 30
     url_list = load_urls4check(filepath)
-    url_response_ok_and_domains_paid = create_output_generator(url_list)
+    url_response_ok_and_domains_paid = create_output_generator(url_list, paid_days)
     print_site_health(url_response_ok_and_domains_paid)
